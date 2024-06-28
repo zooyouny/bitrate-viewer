@@ -21,7 +21,9 @@ def analyze_bitrate(video_path, format='xml'):
     print(f'Now analyzing ~ {total_frames} frames.')
     progress_bar = tqdm(total_frames, unit=' frames', ncols=80)
 
-    proc = subprocess.Popen(['ffprobe', '-hide_banner', '-show_frames',
+    proc = subprocess.Popen(['ffprobe', 
+                             '-allowed_extensions', 'ALL',
+                             '-hide_banner', '-show_frames',
                              '-show_streams',
                              '-threads', str(cpu_count),
                              '-loglevel', 'quiet',

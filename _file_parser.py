@@ -35,16 +35,16 @@ class FileParser:
             # flush bitrate
             if (
                 frame_count > 0
-                and key_frame_idx < len(keyframes)
-                and pts_list[frame_idx] == keyframes[key_frame_idx]
+                and key_frame_idx + 1 < len(keyframes)
+                and pts_list[frame_idx] == keyframes[key_frame_idx + 1]
             ):
                 keyframe_bitrate = current_bitrate / current_second
-                seconds.append(pts_list[frame_idx])
                 bitrates_per_keyframe.append(keyframe_bitrate / 1_000_000)  # megabit
                 print(f"{frame_idx} : {keyframe_bitrate}, {keyframes[key_frame_idx]}")
                 frame_count = 0
                 current_bitrate = 0
                 current_second = 0.0
+                seconds.append(keyframes[key_frame_idx])
                 key_frame_idx += 1
 
             current_bitrate += bitrate
@@ -64,7 +64,7 @@ class FileParser:
             bitrates_per_keyframe.append(current_bitrate / 1_000_000)  # megabit
             seconds.append(keyframes[-1] + current_second)
             print(f"{frame_idx} : {current_bitrate}, {keyframes[-1] + current_second}")
-        print(seconds)
+        # print(seconds)
         return seconds, bitrates_per_keyframe
 
     def __read_key_frame_time(self, frame) -> float:
@@ -143,11 +143,11 @@ class FileParser:
         elif format == "json":
             bitrates, keyframes, encoder = self.__load_json()
 
-        seconds, bitrates_per_sec = self.__calculate_bitrate_per_sec(bitrates)
-        print(len(seconds), len(bitrates_per_sec))
-        # seconds, bitrates_per_sec = self.__calculate_bitrate_per_keyframe(
-        #     bitrates, pts_list, keyframes
-        # )
+        # seconds, bitrates_per_sec = self.__calculate_bitrate_per_sec(bitrates)
         # print(len(seconds), len(bitrates_per_sec))
+        seconds, bitrates_per_sec = self.__calculate_bitrate_per_keyframe(
+            bitrates, pts_list, keyframes
+        )
+        print(len(seconds), len(bitrates_per_sec))
 
         return tuple([seconds, bitrates_per_sec, keyframes, encoder])
